@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Release script: bump version, update changelog/history, commit+tag+push (branch dev only)
+# Release script: bump version, update changelog/history, commit and optionally tag
 # Usage:
-#   ./scripts/release.sh patch|minor|major
-#   ./scripts/release.sh 1.2.3
+#   ./scripts/release.sh patch|minor|major [--prepare]
+#   ./scripts/release.sh 1.2.3 [--prepare]
 
 REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 cd "$REPO_ROOT"
 
 current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
-if [[ "$current_branch" != "dev" ]]; then
-  echo "Erreur: les releases ne sont autorisées que depuis la branche 'dev' (branche actuelle: $current_branch)" >&2
+
+# Mode prepare: pas de tag, pas de push du tag, utile sur branches release/x.y.z
+prepare_only=false
+if [[ "${2:-}" == "--prepare" ]]; then
+  prepare_only=true
+fi
+
+if [[ "$prepare_only" != true && "$current_branch" != "dev" ]]; then
+  echo "Erreur: les releases non-préparées ne sont autorisées que depuis 'dev' (branche actuelle: $current_branch)" >&2
   exit 1
 fi
 
@@ -75,11 +82,16 @@ if ! grep -q "^\- $new_version" docs/VERSION_HISTORY.md; then
   echo "- $new_version — Release $(date +%Y-%m-%d)" >> docs/VERSION_HISTORY.md
 fi
 
-# Commit, tag and push
+# Commit and push
 git add VERSION CHANGELOG.md docs/VERSION_HISTORY.md
-git commit -m "chore(release): v$new_version"
-git tag -a "v$new_version" -m "Release v$new_version"
-git push origin dev
-git push origin "v$new_version"
-
-echo "Release v$new_version effectuée."
+if [[ "$prepare_only" == true ]]; then
+  git commit -m "chore(release): v$new_version (prepare)"
+  git push origin "$current_branch"
+  echo "Release v$new_version préparée sur $current_branch."
+else
+  git commit -m "chore(release): v$new_version"
+  git tag -a "v$new_version" -m "Release v$new_version"
+  git push origin dev
+  git push origin "v$new_version"
+  echo "Release v$new_version effectuée."
+fi

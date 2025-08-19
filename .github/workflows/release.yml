@@ -20,8 +20,8 @@ jobs:
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-          if [ -f project-portfolio/VERSION ]; then
-            echo "file_version=$(cat project-portfolio/VERSION)" >> $GITHUB_OUTPUT
+          if [ -f VERSION ]; then
+            echo "file_version=$(cat VERSION)" >> $GITHUB_OUTPUT
           fi
       - name: Build backend image (placeholder)
         run: |
