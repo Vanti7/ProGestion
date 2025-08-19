@@ -1,0 +1,53 @@
+version: "3.9"
+services:
+	backend:
+		build:
+			context: ../backend
+			dockerfile: Dockerfile
+		container_name: project-portfolio-backend
+		env_file:
+			- ../.env
+		environment:
+			- AUTO_CREATE_DB=true
+			- DATABASE_URL=postgresql://postgres:postgres@db:5432/app
+			- SECRET_KEY=dev-secret-key
+			- JWT_SECRET_KEY=dev-jwt-secret
+			- OAUTH_REDIRECT_URI=http://localhost:5173/oauth/callback
+			- GITHUB_CLIENT_ID=
+			- GITHUB_CLIENT_SECRET=
+			- GITLAB_CLIENT_ID=
+			- GITLAB_CLIENT_SECRET=
+			- ALLOWED_ORIGINS=http://localhost:5173
+		ports:
+			- "5000:5000"
+		depends_on:
+			- db
+		restart: unless-stopped
+
+	frontend:
+		build:
+			context: ../frontend
+			dockerfile: Dockerfile
+		container_name: project-portfolio-frontend
+		ports:
+			- "5173:80"
+		depends_on:
+			- backend
+		restart: unless-stopped
+
+	db:
+		image: postgres:15
+		container_name: project-portfolio-db
+		environment:
+			POSTGRES_USER: postgres
+			POSTGRES_PASSWORD: postgres
+			POSTGRES_DB: app
+		volumes:
+			- db_data:/var/lib/postgresql/data
+		ports:
+			- "5432:5432"
+		restart: unless-stopped
+
+volumes:
+	db_data:
+

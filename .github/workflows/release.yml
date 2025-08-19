@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Derive version
+        id: ver
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          if [ -f project-portfolio/VERSION ]; then
+            echo "file_version=$(cat project-portfolio/VERSION)" >> $GITHUB_OUTPUT
+          fi
+      - name: Build backend image (placeholder)
+        run: |
+          echo "Build backend Docker image here (docker buildx build ... )"
+      - name: Build frontend image (placeholder)
+        run: |
+          echo "Build frontend Docker image here (docker buildx build ... )"
+      - name: Generate changelog section
+        id: changelog
+        run: |
+          TAG=${{ steps.ver.outputs.tag }}
+          echo "## ${TAG}" > CHANGELOG_SECTION.md
+          echo >> CHANGELOG_SECTION.md
+          echo "Voir CHANGELOG.md et commits." >> CHANGELOG_SECTION.md
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Release ${{ steps.ver.outputs.tag }}
+          body_path: CHANGELOG_SECTION.md

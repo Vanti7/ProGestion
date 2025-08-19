@@ -1,0 +1,51 @@
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python / Backend
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.venv/
+backend/.venv/
+*.db
+backend/app.db
+
+# Environnements
+.env
+.env.*
+!.env.example
+
+# Éditeurs/OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Tests/Coverage
+.coverage
+.pytest_cache/
+coverage/
+
+# Docker
+docker/*.env
+docker/data/
+
+# K8s secrets (réel)
+k8s/openai-secret.yaml
+
+# Builds génériques
+/dist/
+/build/
+
+# Divers
+*.sqlite3
