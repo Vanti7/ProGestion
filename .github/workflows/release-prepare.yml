@@ -1,0 +1,69 @@
+name: Release Prepare
+
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        description: 'Type de version (patch/minor/major) ou X.Y.Z'
+        required: true
+        default: 'patch'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+      - name: Compute next version
+        id: ver
+        shell: bash
+        run: |
+          set -euo pipefail
+          LEVEL="${{ github.event.inputs.level }}"
+          cur=$(cat VERSION 2>/dev/null || echo "0.0.0")
+          inc() { IFS='.' read -r M m p <<<"$1"; case "$2" in major) M=$((M+1)); m=0; p=0;; minor) m=$((m+1)); p=0;; patch) p=$((p+1));; *) echo "invalid"; return 1;; esac; echo "${M}.${m}.${p}"; }
+          if [[ "$LEVEL" =~ ^(patch|minor|major)$ ]]; then
+            new=$(inc "$cur" "$LEVEL")
+          elif [[ "$LEVEL" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            new="$LEVEL"
+          else
+            echo "Invalid level: $LEVEL" >&2; exit 1
+          fi
+          echo "version=$new" >> $GITHUB_OUTPUT
+      - name: Create release branch
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git checkout -b "release/${{ steps.ver.outputs.version }}"
+      - name: Bump version (prepare)
+        run: |
+          chmod +x scripts/release.sh
+          ./scripts/release.sh "${{ steps.ver.outputs.version }}" --prepare
+      - name: Push release branch
+        run: |
+          git push --set-upstream origin "release/${{ steps.ver.outputs.version }}"
+      - name: Open PR to master
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ steps.ver.outputs.version }}';
+            const {data: pr} = await github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Release v${version}`,
+              head: `release/${version}`,
+              base: 'master',
+              body: `Préparation release v${version}.\n\n- Version: ${version}\n- Générée par workflow.`
+            });
+            core.setOutput('url', pr.html_url);
+      - name: PR URL
+        run: echo "${{ steps.pr.outputs.url }}"
+
+
