@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.1] - 2025-08-20
+- Mise à jour version
+
+
 ## [0.1.0] - Initial
 - Mise en place du squelette projet (backend Flask, frontend React)
 - Auth email/password + OAuth (GitHub/GitLab)
