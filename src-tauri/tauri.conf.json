@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ProGestion",
+  "version": "0.2.0-mvp-alpha",
+  "identifier": "com.progestion.app",
+  "build": {
+    "beforeDevCommand": "cd frontend && npm run desktop:dev",
+    "beforeBuildCommand": "cd frontend && npm run desktop:build",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "frontend/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "ProGestion",
+        "width": 1200,
+        "height": 800,
+        "resizable": true
+      }
+    ]
+  }
+}
+
