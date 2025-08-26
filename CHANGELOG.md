@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.0] - 2025-08-26
+- Définition du MVP Desktop (PC) documentée dans `docs/MVP_DESKTOP.md`
+- Préparation du versionning pour l’itération Desktop
+
 ## [0.1.1] - 2025-08-20
 - Mise à jour version
 
