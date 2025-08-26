@@ -8,11 +8,10 @@ repository = "https://github.com/Vanti7/ProGestion"
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "1", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = ["shell-open"] }
-tauri-plugin-shell = "2"
+tauri = { version = "1", features = ["shell-open"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
